@@ -102,3 +102,17 @@ export const formatDateForDisplay = (date: Date): string => {
     minute: '2-digit',
   }).format(date);
 };
+
+export const isBirthdayToday = (birthDate: Date): boolean => {
+  const now = new Date();
+  return now.getMonth() === birthDate.getMonth() && now.getDate() === birthDate.getDate();
+};
+
+export const hasReachedBirthdayTime = (birthDate: Date): boolean => {
+  const now = new Date();
+  // Calculate seconds from start of day for comparison
+  const currentSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+  const birthSeconds = birthDate.getHours() * 3600 + birthDate.getMinutes() * 60 + birthDate.getSeconds();
+  
+  return currentSeconds >= birthSeconds;
+};
