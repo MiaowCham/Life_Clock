@@ -187,6 +187,11 @@ const LiveTimer: React.FC<LiveTimerProps> = ({ birthDate }) => {
       {/* Wrapper for Text and Grid */}
       <div className="flex flex-col w-full lg:w-auto landscape:w-auto flex-1 max-w-xl justify-center">
         
+        {/* Header Text */}
+        <div className={`text-center mb-2 lg:mb-4 text-sm sm:text-base font-medium tracking-widest uppercase ${themeColors.textLabel} opacity-80`}>
+          您已经生活了
+        </div>
+
         {/* 2. Precise Age Text */}
         <div className="w-full text-center mb-6 landscape:mb-4 px-1 flex-shrink-0">
           <div className={`flex flex-wrap justify-center items-baseline gap-x-2 sm:gap-x-4 font-mono leading-none ${isBirthday ? 'text-amber-800/70 dark:text-amber-200/70' : 'text-slate-500 dark:text-slate-400'}`}>

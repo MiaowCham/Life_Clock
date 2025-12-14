@@ -106,6 +106,13 @@ const App: React.FC = () => {
             )}
           </div>
         </main>
+        
+        {/* Footer */}
+        <footer className="w-full py-3 text-center z-20 shrink-0 relative">
+          <p className="text-[10px] text-slate-400/40 dark:text-slate-600/40 font-mono tracking-widest uppercase">
+            ✦ Powered by Gemini
+          </p>
+        </footer>
       </div>
     </div>
   );
