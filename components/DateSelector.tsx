@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BirthDetails } from '../types';
 
 interface DateSelectorProps {
@@ -8,10 +8,45 @@ interface DateSelectorProps {
 const DateSelector: React.FC<DateSelectorProps> = ({ onStart }) => {
   const [date, setDate] = useState<string>('');
   const [time, setTime] = useState<string>('00:00');
+  const [maxDate, setMaxDate] = useState('');
+  const [maxTime, setMaxTime] = useState('');
+
+  useEffect(() => {
+    const updateConstraints = () => {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const todayStr = `${year}-${month}-${day}`;
+      
+      setMaxDate(todayStr);
+
+      if (date === todayStr) {
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        setMaxTime(`${hours}:${minutes}`);
+      } else {
+        setMaxTime('');
+      }
+    };
+
+    updateConstraints();
+    // Update constraints periodically to keep "now" fresh
+    const interval = setInterval(updateConstraints, 60000);
+    return () => clearInterval(interval);
+  }, [date]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (date && time) {
+      const selectedDate = new Date(`${date}T${time}`);
+      const now = new Date();
+      
+      if (selectedDate > now) {
+        alert('出生时间不能晚于当前时间');
+        return;
+      }
+      
       onStart({ date, time });
     }
   };
@@ -33,6 +68,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({ onStart }) => {
           <input
             type="date"
             required
+            max={maxDate}
             value={date}
             onChange={(e) => setDate(e.target.value)}
             className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
@@ -46,6 +82,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({ onStart }) => {
           <input
             type="time"
             required
+            max={maxTime}
             value={time}
             onChange={(e) => setTime(e.target.value)}
             className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
