@@ -5,10 +5,31 @@ import { BirthDetails } from './types';
 
 const App: React.FC = () => {
   const [birthDate, setBirthDate] = useState<Date | null>(null);
-  // Default to dark mode
-  const [isDark, setIsDark] = useState(true);
+  
+  // Initialize theme based on precedence: URI -> LocalStorage -> System -> Default (Light)
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== 'undefined') {
+      // 1. URI Parameter
+      const params = new URLSearchParams(window.location.search);
+      const themeParam = params.get('theme');
+      if (themeParam === 'dark') return true;
+      if (themeParam === 'light') return false;
 
-  // Load from local storage on mount
+      // 2. Local Storage
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') return true;
+      if (savedTheme === 'light') return false;
+
+      // 3. System Preference
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return true;
+      }
+    }
+    // 4. Default to Light
+    return false;
+  });
+
+  // Load birth date from local storage on mount
   useEffect(() => {
     const savedDate = localStorage.getItem('birthDate');
     if (savedDate) {
@@ -17,6 +38,22 @@ const App: React.FC = () => {
         setBirthDate(date);
       }
     }
+  }, []);
+
+  // Listen for system theme changes if no manual override exists
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    const handleChange = (e: MediaQueryListEvent) => {
+      const params = new URLSearchParams(window.location.search);
+      // Only auto-switch if no user preference is stored and no URI param
+      if (!localStorage.getItem('theme') && !params.has('theme')) {
+        setIsDark(e.matches);
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
   const handleStart = (details: BirthDetails) => {
@@ -32,7 +69,9 @@ const App: React.FC = () => {
   };
 
   const toggleTheme = () => {
-    setIsDark(!isDark);
+    const newMode = !isDark;
+    setIsDark(newMode);
+    localStorage.setItem('theme', newMode ? 'dark' : 'light');
   };
 
   return (
